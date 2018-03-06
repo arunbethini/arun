@@ -1,0 +1,98 @@
+ awk '{ print }' test.txt
+  437  awk '{ print $5 }' test.txt
+  438  awk '{ print $1 }' test.txt
+  439  awk '{ print $^ }' test.txt
+  440  awk '{ print $1 }' test.txt
+  441  clear
+  442  more test.txt
+  443  vi test.txt
+  444  clear
+  445  awk '{ print }' test.txt
+  446  alias a = "awk"
+  447  alias a="awk"
+  448  a
+  449  clear
+  450  more test.txt
+  451  a '{print $1.$2}'
+  452  a '{print $1.$2}' test.txt
+  453  a '{print $1:$2}' test.txt
+  454  a '{print $1,$2}' test.txt
+  455  clear
+  456  a '/test/ { print }' test.txt
+  457  awk '/Test/ { print }' test.txt
+  458  a '/[a..z]/ { print }' test.txt
+  459  a '/[0..9]/ { print }' test.txt
+  460  more test.txt
+  461  clear
+  462  a '/[0..9]/ { print }' test.txt
+  463  a '/test/ { print }' test.txt
+  464  a 'test/ { print }' test.txt
+  465  a '/test/ { print }' test.txt
+  466  a '/test/ { print }' test.txt
+  467  a '/[0..9]/ { print }' test.txt
+  468  vi test.txt
+  469  a '/^[0..9]/ { print }' test.txt
+  470  more test.txt
+  471  clear
+  472  a '/^[0..9]/ { print }' test.txt
+  473  awk  '/^[0..9]/ { print }' test.txt
+  474  awk  '/^[a..z]/ { print }' test.txt
+  475  awk  '/[a..z]/ { print }' test.txt
+  476  vi test.txt
+  477  awk  '/Test/ { print }' test.txt
+  478  awk  '/^[a-z]/ { print }' test.txt
+  479  awk  '/^[0-9]/ { print }' test.txt
+  480  clear
+  481  awk  '/^[0-9]/ { print }' test.txt
+  482  vi test.txt
+  483  awk  '/[0-9]$/ { print }' test.txt
+  484  awk  '/[0-9]$/ { print }' test.txt  > output.txt
+  485  more output.txt
+  486  awk  '/[0-9]$/ { print }' test.txt  >> output.txt
+  487  more output.txt
+  488  awk -F, '{ print $3 }' test.txt  > output1.txt
+  489  more output1.txt
+  490  awk -F, '{ print $3 }' test.txt
+  491  clear
+  492  awk -F, '{ print $3 }' test.txt
+  493  more /etc/passwd
+  494  awk -F: '{ print $1 $6 }' test.txt
+  495  clear
+  496  awk -F: '{ print $1 $6 }' /etc/passwd.txt
+  497  awk -F: '{ print $1 $6 }' /etc/passwd
+  498  clear
+  499  awk -F: '{ print $1 $6 }' /etc/passwd
+  500  awk -F: '{ print $1,$6 }' /etc/passwd
+  501  clear
+  502  awk -F: '{ print $1  $6 }' /etc/passwd
+  503  clear
+  504  awk '{if ($1 ~ /123/) print }' test.txt
+  505  awk '{if ($1 ~ /test/) print }' test.txt
+  506  awk '{if ($2 ~ /test/) print }' test.txt
+  507  awk '{if ($2 ~ /Test/) print }' test.txt
+  508  more /var/log/messages
+  509  clear
+  510  tail /var/log/messages
+  511  awk '{ print  }' test.txt
+  512  awk '{ print $4 $5 $6 }' /var/log/messages
+  513  clear
+  514  tail /var/log/messages
+  515  awk '{if ($7 ~ /eth1/) print }' test.txt
+  516  awk '{if ($7 ~ /eth1/) print }' /var/log/messages
+  517  awk '{if ($7 ~ /eth1/) print $4 $7 $11 }' /var/log/messages
+  518  awk '{if ($7 ~ /eth1/) print $4,$7,$11 }' /var/log/messages
+  519  more test.txt
+
+  520  clear
+  521  more test.txt
+  522  more test.txt | grep test
+  523  more test.txt | grep Test
+  524  more test.txt | grep -i Test
+  525  grep -i test test.txt | awk '[1-0]{ print }'
+  526  grep -i test test.txt | awk '/[1-0]/{ print }'
+  527  grep -i test test.txt | awk '/[0-9]/{ print }'
+  528  grep -i test test.txt | awk '/[0-9]$/{ print }'
+  529  grep -i test test.txt | awk '/^[0-9]/{ print }'
+  530  grep -i test test.txt | awk '{(if $1 ~ /123/) print }'
+  531  grep -i test test.txt | awk '{ if ($1 ~ /123/) print }'
+  532  grep -i test test.txt | awk '{ if ($1 ~ /[0-9]/) print }'

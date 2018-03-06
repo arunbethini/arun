@@ -1,0 +1,445 @@
+				RHCSA (Total Marks 300, Min Masks 210 (70%))
+
+* All the below Questions to be performed in VIRTUAL MACHINE
+
+	 Before Attempting the exam
+
+* Examiner will ask you to Register 
+		Your Name: 
+		E-mail:
+		Postall Address 
+		Agree for confidentialilty aggreement .i,e check boxes
+
+* Next screen will provide your domain,An user name with password will be displayed Prior to logining into the desktop.(No root/password will provided)
+
+		eg network6, user name and password. 
+
+* Click Exam console icon that will be on the desktop to display 
+	
+	IP Address: 172.25.X.11 
+	Subnet Mask: 255.255.255.0
+	Default Gateway 172.25.X.254 
+	DNS:172.25.X.254
+	Hostname serverX.example.com
+
+(NOTE:- Until and unless we recover root password,configure static ip address, hostname and DNS details the remaining question paper cannot be viewed.)
+
+ 
+* Softlink to stop/start/reboot VM and reset the vm will be on the desktop.
+
+* The Services should be enabled & disabled accordingly to make sure all Server developed are available for evaluation where firewall should not stop the services.
+
+Ans: cd /usr/lib/firewalld/services/
+
+  Note: As and when you login to your VM after recovering your root password of VM,{ you have to disable your iptables}
+
+ Note:- IN EXAM DISK UTILITY & LOGICAL MANAGEMENT TOOLS MIGHT NOT BE AVAILABLE.
+
+ ========================================================================================
+Intial configuration
+========================================================================================
+
+1. After the examiner asks you to start your exam the try to login with the default password. If you are not able to login then reboot VM by using the softlink on the desktop.
+
+NOTE :-  It should be done on virtual machine.
+
+A.Root Password Recovery
+
+Ans: Rescue enviroment.
+
+	# reboot the system, interrupt and issue e
+
+	# at linux16 add rb.break
+	
+	# crlt+x
+
+	# mount -o remount,rw /sysroot
+
+	# chroot /sysroot
+
+	change the password 
+
+	# touch /.autorelabel
+
+	# exit {twice }
+	
+	login
+
+B.Setup Static IP Address : Configuring the Static IP ( In exam 172.25.X.10 )	
+
+
+ View
+	# nmcli con show	
+
+	# nmcli con show --active
+
+	# nmcli con show "Static-eth0"
+
+Create 
+
+	# nmcli connection add con-name classroom type ethernet ifname eth0	 
+	
+	# nmcli connection add con-name classroom ifname eth0 autoconnect on type ethernet ipv4 172.24.X.10/24 gw4 172.25.X.254  ipv4.method manual ipv4.dns 172.25.254.254 
+	
+	# nmcli con up classroom
+
+
+Modify
+
+	nmcli connection mod "System eth0" ipv4.addresses "172.25.X.10/24 172.25.X.254"
+
+	nmcli connection modify "System eth0" ipv4.dns 172.25.254.254
+
+	nmcli connection modify "System eth0" ipv4.method manual
+
+	nmcli connection reload 
+
+	nmcli connection up "System eth0"
+
+
+C.Setup Hostname and name resolution ( In exam station.networkX.example.com )
+ 
+		# hostnamectl set-hostname serverX.example.com
+		
+		# hostname 
+
+Configuring name resolution
+
+		# cat /etc/resolv.conf
+
+		# dig host	 
+
+		# systemctl enable network
+	
+	        # ifconfig 
+		
+		# ping server1.example.com { ping host.networkX.example.com } 
+
+D.Disable firewalld 
+
+		 # systemctl mask iptables
+
+		 # systemctl mask ip6tables
+
+		 # systemctl mask ebtables
+
+		 # systemctl mask firewalld
+                       
+2 of 17.Configure selinux must be runing in enforcing mode.  
+
+
+Ans:   # vim /etc/selinux/config
+
+  		SELINUX=enforcing
+
+ # reboot
+
+==========================================================
+
+1 of 17. Useradd -u 3895 < user name > :-
+
+	# useradd -u 3895 aclam
+
+
+2 of 17. kernel update server serverX.example.com
+
+	# http or wget ftp://classroom.example.com/pub/updates/
+
+	# rpm -ivh kernel*
+
+	# reboot 
+
+	# login and check uname -r 
+      
+
+8 of 17.Configure your system to use a default repository.
+ READ REPOSITORY ADDRESS PROPERLY { In exam Repository location will be different, please check }
+
+           # cd  /etc/yum.repos.d/
+	   # vi yum.repo
+        		[server]
+			name=rpms
+			baseurl = http://content.example.com/rhel7.0/x86_64/dvd
+			gpgcheck=0
+			 
+	  # yum clean all
+          # yum list {only to check, warning do not install )
+
+9 of 17.Bind to an external authenication service. :- {In exam /ruser/ldapuserX OR /netdir/ldapuserX}
+
+	# yum -y install nss-pam-ldapd pam_krb5 openldap-clients sssd 
+
+	# systemctl enable sssd
+	
+	# mkdir  /etc/openldap/cacerts
+
+	# cd /etc/openldap/cacerts
+
+	# wget http://classroom.example.com/pub/example-ca.crt
+
+	# wget -O /etc/krb5.keytab http://classroom.example.com/pub/keytabs/serverX.keytab
+  
+	# setup 
+
+	 OR		configure via GUI command
+
+	# yum install authconfig-gtk
+
+	# systemclt isolate graphical.target
+
+        # system-config-authentication
+
+         
+Note:- {if u didn't find the authentication tab in your VM & then only your are suppose to install the above packages}     
+	
+	---> Under Authetication Configuration
+	
+	    	--> Enable LDAP
+		
+		---> Choose LDAP for the User Account Database
+
+		---> Select Use TLS to encrypt connections	     
+
+			 dc=example,dc=com {dc=networkX,dc=example,dc=com}	 
+		
+			 ldap://classroom.example.com 
+		
+				realm=EXAMPLE.COM
+    				kdc=classroom.example.com 
+    				admin server=classroom.example.com
+
+
+	# getent passwd ldapuserX 
+
+	# su - ldapuserX
+
+
+3 of 17	 Configure an autofs
+
+              # yum install autofs -y 
+
+Ans :-        # showmount -e classroom.example.com               
+
+
+              # vi /etc/auto.master
+        
+	    	---> In this file copy line "/misc  /etc/auto.misc" and 
+		     paste it and modify the line as  follows
+  
+              /home/guests  ( in exam /netdir or /rusers/ldapuserX, the result for the showmount command) /etc/auto.misc
+              :wq
+
+               # getent passwd ldapuserX
+        	          
+               # vi /etc/auto.misc
+                
+		 ---> Copy first full line starting with "#linux" and 
+                      paste at end of the file, modify it as follow
+
+                ldapuserX       -rw,soft,intr      172.25.254.254:/home/guests/ldapuserX
+			
+		# systemctl enable autofs.service 
+
+                # systemctl start autofs.service
+
+                # su - ldapuserX
+
+                # pwd
+
+
+
+4.of 17 Resize logical volume VO and its file system to 300MiB and
+		  make sure that the file system remains intact.( 255MiB to 275MiB is acceptable)
+
+    	 	
+     # mkdir /backup
+     # cd /home
+     # cp -rpf * /backup
+     # df -TH	
+	
+
+---> Extend :-
+
+          # lvdisplay
+          # lvextend -L +88M /dev/VO/loans 
+          # xfs_growfs /dev/VO/loans
+	  # df -TH		
+          # lvdisplay 
+	  
+
+5 of 17 Create a new logical volume according to the following requirements.
+
+		* The logical volume is named engineering and belongs
+		  to the development volume group and has a size of 
+		  20 extents
+
+		* logical volume in development volume group should
+		  have an extend size of 32MiB.
+
+		* Format the new logical volume with the ext3 file
+		  system. The logical volume should be automatically
+		  mounted under /mnt/engineering at system boot time.
+Ans :-
+
+	FROM CLI :- {32 x 20 = 640}
+ 
+       ---> fdisk  /dev/vdb
+       ---> to create a new partion "n" 
+       ---> partition size {as per the question} (640+50=690)
+       ---> enter "t" to select lvm code "8e"
+       ---> enter "w" to save
+       ---> reboot the VM {Virtual Machine}
+       ---> pvcreate /dev/vdbX
+       ---> pvdisplay
+       ---> vgcreate -s 32M development /dev/vdbX { PE size as per the question }
+       ---> vgdisplay {to check total no of PE's should as per the question}
+       ---> lvcreate -l +20 -n engineering development {640 = as per the question} 
+       ---> lvdisplay 
+       ---> mkfs.ext3 /dev/development/engineering {Filesystem type as per the question}
+       ---> mkdir /mnt/engineering {as per the question}
+       ---> add the entry in /etc/fstab
+       ---> vi /etc/fstab 
+		
+	    /dev/development/engineering      /mnt/engineering     ext3       defaults  0 0
+       ---> save  the entry in /etc/fstab
+       ---> mount -a
+       ---> mount
+       ---> reboot & check it after u log-in to your Virtual Machine
+	
+To remove LVM VG PV {LOGICAL VOLUME VOLUME GROUP PHYSICAL VOLUME}
+
+     ---> Comment the entry of lvm in /etc/fstab
+     ---> umount /dev/development/engineering 
+     ---> lvremove engineering  development /dev/vdbX
+     ---> vgremove development /dev/vdbX
+     ---> pvremove /dev/vdbX
+     ---> fdisk -cu /dev/vdbX
+     ---> hit "p" {find the respective partion to delete}
+     ---> hit "d"
+     ---> save "w" & quit
+     ---> reboot the Virtual Machine
+
+
+6 of 17 NTP client
+		Make your system NTP client to classroom.example.com (exam host.networkX.example.com)
+
+ANS :- 
+           
+			# vi /etc/chrony.conf
+	
+			server classroom.example.com iburst
+
+			# systemctl restart chronyd
+
+			# chronyc sources -v
+
+			# systemctl enable chronyd
+
+			# systemctl is-enabled chronyd
+		
+			# vi  /etc/ntp/step-tickers  -- IPADDRESS Of the SERVER
+
+7 of 17	Create user account
+
+                 # groupadd sharegrp
+                 
+		 # useradd -G sharegrp natash
+                
+                 # passwd natash maipo
+
+                 # useradd -G sharegrp harry
+
+                 # passwd harry
+
+                 # useradd -s /sbin/nologin sarah {an interactive no-login shell}[as per the question]
+
+	         # useradd -s /bin/false sarah {an non-interactive shell} [as per the question]
+  
+                 # passwd sarah
+                 
+	         # getent passwd natesh harry sarah	
+
+10 of 17 Collaberative Directory
+
+        	# mkdir -p  /home/shared
+		
+		# chgrp sharegrp  /home/shared
+	
+		# chmod 2775  /home/shared
+			
+			 (or) 
+
+		# chmod 2770  /home/shared/
+		
+		# 1s -1d  /home/shared
+
+11 of 17 Locate all the file ownned by julia and place a copy of them in the
+		        /root/findresults/ directory.
+
+Ans :-
+	# mkdir /root/findresults
+	
+	# find / -user julia -type f -exec  cp -a {} /root/findresults \;    
+
+        
+12 of 17 Assign the cronjob
+	Have the user natash setup a crone job that runs daily at 14:23 localtime. The cronejob should run a simple command that generates th e text /bin/echo hiya.
+
+	# su - natash
+
+	# crontab -e -u natash
+         
+                        23 14 * * * /bin/echo hiya
+
+	# crontab -l -u 
+
+			If it is /sbin/echo
+
+ANS :-
+			# su - natash
+	
+			# crontab -e -u natash
+ 			
+			      23 14 * * * /sbin/echo hiya
+
+			# cp /bin/echo /sbin
+
+13 of 17 Done Create an archive named /root/archive.tar.gz. which contains the contents of /usr/local/ The tar archive should be compressed using gzip.	
+
+Ans: #  tar cvfz /root/archive.tar.gz /usr/share/
+
+14 of 17 Add a swap partition.
+
+        * Add an additional swap partion of 756MiB to your system.
+
+	* The swap partition should automatically mount when your system boots. Do not remove or otherwise alter any existing swap partitions on your system.  
+
+
+Ans :-
+  	# fdisk /dev/vdb
+		--->  Create a partition of 756MiB
+		--->  Give "t" and enter, give the partion number just created
+		--->  Give "L" to check the ID number of swap [it's 82] and enter
+		--->  "w" to save
+        # reboot the system	
+	# mkswap /dev/vdbX
+	# blkid /dev/vdbX   [ To check the UUID number of the required partition ]
+	# vi /etc/fstab
+		---> Give the entry of the swap partition like shown in this example	
+		
+   	   UUID NO	swap	swap	default	    0 0
+
+	# swapon -a
+	# swapon -s
+
+
+15 of 17 Configure /var/tmp/fstab permission.
+
+                                # cp /etc/fstab /var/tmp/
+                                # setfacl -m o:r-- /var/tmp/fstab
+                                # setfacl -m u:harry:--- /var/tmp/fstab
+                                # setfacl -m u:natash:rw /var/tmp/fstab
+16 of 17 Find a string.
+
+	# grep shared /usr/share/dict/words > /root/lines
+
